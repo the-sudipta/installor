@@ -1,28 +1,25 @@
+#[cfg(target_os = "macos")]
+use crate::detect::SoftwareDetector;
 use crate::{
-    detect::SoftwareDetector,
     error::{InstallorError, InstallorResult},
     models::{DetectedEntry, SourceType},
 };
 
-#[cfg_attr(not(target_os = "macos"), allow(dead_code))]
+#[cfg(target_os = "macos")]
 pub struct MacOsDetector;
 
+#[cfg(target_os = "macos")]
 impl SoftwareDetector for MacOsDetector {
     fn detect(&self) -> InstallorResult<Vec<DetectedEntry>> {
-        #[cfg(target_os = "macos")]
-        {
-            let out = std::process::Command::new("system_profiler")
-                .args(["SPApplicationsDataType", "-json"])
-                .output()?;
-            if !out.status.success() {
-                return Err(InstallorError::Operation(
-                    String::from_utf8_lossy(&out.stderr).into_owned(),
-                ));
-            }
-            return parse_system_profiler(&String::from_utf8_lossy(&out.stdout));
+        let out = std::process::Command::new("system_profiler")
+            .args(["SPApplicationsDataType", "-json"])
+            .output()?;
+        if !out.status.success() {
+            return Err(InstallorError::Operation(
+                String::from_utf8_lossy(&out.stderr).into_owned(),
+            ));
         }
-        #[cfg(not(target_os = "macos"))]
-        Ok(Vec::new())
+        parse_system_profiler(&String::from_utf8_lossy(&out.stdout))
     }
 }
 

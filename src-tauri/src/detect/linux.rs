@@ -1,62 +1,56 @@
-use crate::{
-    detect::SoftwareDetector,
-    error::InstallorResult,
-    models::{DetectedEntry, SourceType},
-};
+use crate::models::{DetectedEntry, SourceType};
+#[cfg(target_os = "linux")]
+use crate::{detect::SoftwareDetector, error::InstallorResult};
 #[cfg(target_os = "linux")]
 use std::process::Command;
 
-#[cfg_attr(not(target_os = "linux"), allow(dead_code))]
+#[cfg(target_os = "linux")]
 pub struct LinuxDetector;
+#[cfg(target_os = "linux")]
 impl SoftwareDetector for LinuxDetector {
     fn detect(&self) -> InstallorResult<Vec<DetectedEntry>> {
-        #[cfg(target_os = "linux")]
-        {
-            let specs = [
-                (
-                    "dpkg-query",
-                    vec!["-W", "-f=${Package}\t${Version}\t${Maintainer}\n"],
-                    SourceType::Apt,
-                    "dpkg",
-                ),
-                (
-                    "rpm",
-                    vec!["-qa", "--qf", "%{NAME}\t%{VERSION}\t%{VENDOR}\n"],
-                    SourceType::Dnf,
-                    "rpm",
-                ),
-                ("pacman", vec!["-Q"], SourceType::Pacman, "pacman"),
-                (
-                    "flatpak",
-                    vec!["list", "--app", "--columns=application,version,origin"],
-                    SourceType::Flatpak,
-                    "flatpak",
-                ),
-                ("snap", vec!["list"], SourceType::Custom, "snap"),
-            ];
-            let mut all = Vec::new();
-            for (bin, args, source, format) in specs {
-                let available = Command::new("sh")
-                    .args(["-c", &format!("command -v {bin}")])
-                    .output()
-                    .is_ok_and(|o| o.status.success());
-                if !available {
-                    continue;
-                }
-                if let Ok(out) = Command::new(bin).args(args).output() {
-                    if out.status.success() {
-                        all.extend(parse_packages(
-                            &String::from_utf8_lossy(&out.stdout),
-                            source,
-                            format,
-                        ));
-                    }
-                }
+        let specs = [
+            (
+                "dpkg-query",
+                vec!["-W", "-f=${Package}\t${Version}\t${Maintainer}\n"],
+                SourceType::Apt,
+                "dpkg",
+            ),
+            (
+                "rpm",
+                vec!["-qa", "--qf", "%{NAME}\t%{VERSION}\t%{VENDOR}\n"],
+                SourceType::Dnf,
+                "rpm",
+            ),
+            ("pacman", vec!["-Q"], SourceType::Pacman, "pacman"),
+            (
+                "flatpak",
+                vec!["list", "--app", "--columns=application,version,origin"],
+                SourceType::Flatpak,
+                "flatpak",
+            ),
+            ("snap", vec!["list"], SourceType::Custom, "snap"),
+        ];
+        let mut all = Vec::new();
+        for (bin, args, source, format) in specs {
+            let available = Command::new("sh")
+                .args(["-c", &format!("command -v {bin}")])
+                .output()
+                .is_ok_and(|o| o.status.success());
+            if !available {
+                continue;
             }
-            return Ok(all);
+            if let Ok(out) = Command::new(bin).args(args).output()
+                && out.status.success()
+            {
+                all.extend(parse_packages(
+                    &String::from_utf8_lossy(&out.stdout),
+                    source,
+                    format,
+                ));
+            }
         }
-        #[cfg(not(target_os = "linux"))]
-        Ok(Vec::new())
+        Ok(all)
     }
 }
 

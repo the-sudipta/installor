@@ -93,7 +93,7 @@ async fn install_dmg(path: &str, target: Option<&str>) -> InstallorResult<Instal
 }
 #[cfg(not(target_os = "macos"))]
 async fn install_dmg(_path: &str, _target: Option<&str>) -> InstallorResult<InstallOutcome> {
-    Err(InstallorError::Unsupported(
+    Err(InstallorError::Operation(
         "DMG installation is available only on macOS".into(),
     ))
 }

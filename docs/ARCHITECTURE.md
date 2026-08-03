@@ -54,7 +54,7 @@ SQLite schema creation is idempotent. The local database is the immediate applic
 
 ## Reconciliation
 
-During optional sync, remote rows are pulled first. For matching IDs, a strictly newer `updated_at` value wins; ties remain local. Pending local operations are pushed after merge. Failed pushes stay in `sync_queue` and retry on the next successful sync. There is no background polling service in v0.1.0.
+During optional sync, remote rows are pulled first. For matching IDs, a strictly newer `updated_at` value wins; ties remain local. Pending local operations are pushed after merge. Failed pushes stay in `sync_queue` and retry on the next successful sync. There is no background polling service in v0.1.1.
 
 ## Verification strategy
 

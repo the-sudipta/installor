@@ -1,7 +1,7 @@
 {
   "name": "installor",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Local-first cross-platform software catalog and installer orchestrator with account-independent public Google Sheet imports.",
   "author": "Sudipta Kumar (https://github.com/the-sudipta)",
   "license": "Apache-2.0",

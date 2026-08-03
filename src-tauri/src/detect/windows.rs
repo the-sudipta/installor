@@ -1,9 +1,8 @@
-use crate::{
-    detect::SoftwareDetector,
-    error::InstallorResult,
-    models::{DetectedEntry, SourceType},
-};
+use crate::models::{DetectedEntry, SourceType};
+#[cfg(target_os = "windows")]
+use crate::{detect::SoftwareDetector, error::InstallorResult};
 
+#[cfg(target_os = "windows")]
 pub struct WindowsDetector;
 
 #[cfg(target_os = "windows")]
@@ -49,13 +48,6 @@ impl SoftwareDetector for WindowsDetector {
         found.sort_by_key(|a| a.name.to_lowercase());
         found.dedup_by(|a, b| a.name.eq_ignore_ascii_case(&b.name) && a.version == b.version);
         Ok(found)
-    }
-}
-
-#[cfg(not(target_os = "windows"))]
-impl SoftwareDetector for WindowsDetector {
-    fn detect(&self) -> InstallorResult<Vec<DetectedEntry>> {
-        Ok(Vec::new())
     }
 }
 

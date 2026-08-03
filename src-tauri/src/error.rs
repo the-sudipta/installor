@@ -14,8 +14,6 @@ pub enum InstallorError {
     Csv(#[from] csv::Error),
     #[error("invalid configuration: {0}")]
     InvalidConfig(String),
-    #[error("unsupported operation: {0}")]
-    Unsupported(String),
     #[error("operation failed: {0}")]
     Operation(String),
 }
