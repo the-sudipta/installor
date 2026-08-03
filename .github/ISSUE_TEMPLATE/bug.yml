@@ -1,0 +1,58 @@
+name: Bug report
+description: Report a reproducible Installor defect without private data.
+title: "[Bug]: "
+labels: [bug, needs-triage]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for helping improve Installor. Never attach credentials, private Sheets, databases, institutional records, software keys, or real device inventories.
+  - type: input
+    id: version
+    attributes:
+      label: Installor version
+      placeholder: v0.1.0
+    validations:
+      required: true
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Operating system
+      options: [Windows, macOS, Ubuntu or Debian, Fedora or RHEL, Arch Linux, Other Linux]
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      description: Explain actual and expected behavior.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Minimal reproduction
+      placeholder: "1. Open …\n2. Select …\n3. Observe …"
+    validations:
+      required: true
+  - type: input
+    id: route
+    attributes:
+      label: Source and installer type
+      placeholder: winget / MSI, public Sheet import, detection, etc.
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Redacted evidence
+      description: Include safe logs or screenshots only after removing personal paths, tokens, and private data.
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Submission checks
+      options:
+        - label: I searched existing issues.
+          required: true
+        - label: I removed all credentials, private data, and identifying inventory details.
+          required: true
+        - label: This is not an undisclosed security vulnerability.
+          required: true

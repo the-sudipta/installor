@@ -1,0 +1,2 @@
+id,name,publisher,category,platforms,source_type,source_id,download_url,installer_type,silent_args,checksum_sha256,tags,notes,created_at,updated_at
+,OBS Studio,OBS Project,Video,"windows,macos,linux",custom,,https://example.com/installer.exe,other,,,recording,Replace this example with your software,,

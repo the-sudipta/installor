@@ -1,0 +1,52 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules/
+src-tauri/target/
+src-tauri/gen/
+dist/
+dist-ssr/
+*.local
+
+# Local application state, secrets, and exports
+*.env
+.env.*
+!.env.example
+*.sqlite
+*.sqlite3
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+*.bak
+*.backup
+*.key
+*.pem
+*.p12
+*.pfx
+private/
+exports/
+downloads/
+
+# Local QA captures can include surrounding workstation content
+artifacts/installor-smoke.png
+
+# Preserved empty nested Git metadata found during repository preparation
+docs/.git-disabled/
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

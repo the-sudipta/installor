@@ -1,0 +1,16 @@
+{
+  "name": "Installor",
+  "short_name": "Installor",
+  "description": "Local-first software catalog and installer orchestration.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#071127",
+  "theme_color": "#071127",
+  "icons": [
+    {
+      "src": "assets/installor-icon.png",
+      "sizes": "256x256",
+      "type": "image/png"
+    }
+  ]
+}

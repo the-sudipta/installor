@@ -1,0 +1,28 @@
+cff-version: 1.2.0
+message: "If you use Installor in research, teaching, or an industrial study, please cite this software."
+title: "Installor"
+type: software
+version: 0.1.0
+date-released: 2026-08-03
+authors:
+  - family-names: "Kumar"
+    given-names: "Sudipta"
+    alias: "the-sudipta"
+repository-code: "https://github.com/the-sudipta/installor"
+url: "https://the-sudipta.github.io/installor/"
+license: Apache-2.0
+abstract: >-
+  Installor is a local-first, cross-platform desktop application for maintaining
+  portable software catalogs, reviewing installed applications, acquiring and
+  verifying installers, and executing explicit platform-native installation
+  plans. It supports account-independent, read-only Google Sheet imports and an
+  optional owner-deployed Apps Script bridge for bidirectional synchronization.
+keywords:
+  - software deployment
+  - package management
+  - software inventory
+  - human-in-the-loop automation
+  - software supply chain
+  - Google Sheets
+  - Tauri
+  - Rust

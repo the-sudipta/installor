@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security vulnerability
+    url: https://github.com/the-sudipta/installor/security/advisories/new
+    about: Report vulnerabilities privately. Do not open a public issue.
+  - name: Support and usage guide
+    url: https://github.com/the-sudipta/installor/blob/main/SUPPORT.md
+    about: Review supported routes and the information needed for help.
+  - name: Research or funded collaboration
+    url: https://github.com/the-sudipta/installor/blob/main/FUNDING.md
+    about: Explore research, Industrial PhD, pilot, and sponsored-engineering routes.

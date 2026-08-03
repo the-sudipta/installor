@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="theme-color" content="#101827" />
+    <title>Installor — Your software, ready anywhere</title>
+    <link rel="icon" href="./assets/installor-logo.png" />
+    <link rel="stylesheet" href="./styles.css" />
+    <script type="module" src="./main.js" defer></script>
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="brand"><img class="brand-mark" src="./assets/installor-logo.png" alt="Installor logo" /><div><strong>Installor</strong><small>Software command center</small></div></div>
+        <nav aria-label="Main navigation">
+          <button class="nav-item active" data-view="catalog"><span>▦</span> Catalog</button>
+          <button class="nav-item" data-view="detected"><span>⌁</span> Detected software</button>
+          <button class="nav-item" data-view="settings"><span>⚙</span> Settings</button>
+        </nav>
+        <div class="sidebar-foot"><span class="health-dot"></span><span id="local-status">Local database ready</span><small>Private by default</small></div>
+      </aside>
+
+      <main>
+        <header class="topbar">
+          <div><p class="eyebrow">PERSONAL SOFTWARE LIBRARY</p><h1 id="view-title">Your catalog</h1></div>
+          <div class="top-actions"><button class="button ghost" id="sync-button">↻ Sync now</button><button class="button primary" id="add-button">＋ Add software</button></div>
+        </header>
+
+        <section id="catalog-view" class="view active">
+          <div class="metric-row">
+            <article><span>Catalog</span><strong id="catalog-count">0</strong><small>saved applications</small></article>
+            <article><span>This machine</span><strong id="installed-count">0</strong><small>installed and verified</small></article>
+            <article><span>Ready to install</span><strong id="ready-count">0</strong><small>installer source configured</small></article>
+          </div>
+          <div class="panel">
+            <div class="toolbar">
+              <div class="search-wrap"><span>⌕</span><input id="search" type="search" placeholder="Search name, publisher, category, or tag…" /></div>
+              <button class="button subtle" id="select-all">Select all</button><button class="button subtle" id="select-none">Clear</button>
+              <button class="button subtle" id="find-installers">Find installers</button>
+              <button class="button accent" id="download-selected">↓ Download selected</button><button class="button primary" id="install-selected">Install selected</button>
+            </div>
+            <div id="bulk-status" class="progress-area hidden"><div><span id="progress-label">Working…</span><span id="progress-value"></span></div><progress id="progress-bar" max="100" value="0"></progress></div>
+            <div class="table-wrap"><table><thead><tr><th><input id="select-all-checkbox" type="checkbox" aria-label="Select all" /></th><th>Name</th><th>Publisher</th><th>Category</th><th>Status</th><th>Source</th><th class="align-right">Actions</th></tr></thead><tbody id="catalog-body"></tbody></table><div id="empty-catalog" class="empty hidden"><div class="empty-icon">＋</div><h2>Build your portable software list</h2><p>Add an app, detect what is already installed, or import a public Google Sheet.</p><div><button class="button primary" data-action="add">Add software</button><button class="button ghost" data-action="settings">Import a Sheet</button></div></div></div>
+          </div>
+        </section>
+
+        <section id="detected-view" class="view">
+          <div class="section-intro"><div><h2>Installed software review</h2><p>Scan this computer and choose exactly what joins your catalog. Nothing is added automatically.</p></div><button class="button primary" id="detect-button">Scan this computer</button></div>
+          <div class="panel"><div id="detect-loading" class="empty"><div class="radar">⌁</div><h2>Ready to scan</h2><p>System entries and platform package managers are filtered into a reviewable list.</p></div><div id="detected-list" class="review-list"></div></div>
+        </section>
+
+        <section id="settings-view" class="view">
+          <div class="settings-grid">
+            <form id="settings-form" class="panel settings-card">
+              <div class="panel-heading"><div><p class="eyebrow">ZERO-ACCOUNT IMPORT</p><h2>Public Google Sheet</h2></div><span class="pill success">No OAuth</span></div>
+              <p class="help">Works with a Sheet owned by any Google account. Set “Anyone with the link” to Viewer, then paste its Share URL. The workbook should have a <b>Catalog</b> tab.</p>
+              <label>Google Sheet share URL<input name="public_sheet_url" type="url" placeholder="https://docs.google.com/spreadsheets/d/…/edit" /></label>
+              <button class="button accent full" type="button" id="import-sheet">Import shared Sheet</button>
+              <div class="rule"><span>optional write-back</span></div>
+              <label>Apps Script Web App URL<input name="apps_script_url" type="url" placeholder="https://script.google.com/macros/s/…/exec" /></label>
+              <label>Shared secret<input name="shared_secret" type="password" placeholder="Stored in your OS credential vault" autocomplete="new-password" /><small id="secret-status"></small></label>
+              <button class="button ghost full" type="button" id="test-connection">Test write-back connection</button>
+              <div class="panel-heading spaced"><div><p class="eyebrow">THIS DEVICE</p><h2>Local preferences</h2></div></div>
+              <label>Machine label<input name="machine_label" placeholder="Studio PC" /></label>
+              <label>Download folder<input name="download_folder" placeholder="Downloads/Installor" /></label>
+              <label class="check-label"><input name="recursive_installer_search" type="checkbox" /> Search download subfolders for installer suggestions</label>
+              <button class="button primary full" type="submit">Save settings</button>
+            </form>
+            <aside class="panel info-card"><div class="shield">✓</div><h2>Clear privacy boundaries</h2><ul><li><b>Public link:</b> anonymous read-only import; no account connection.</li><li><b>Local catalog:</b> stored in SQLite on this computer.</li><li><b>Shared secret:</b> stored in Windows Credential Manager, macOS Keychain, or Linux Secret Service.</li><li><b>Installs:</b> begin only after you select apps and click Install.</li></ul><div class="notice"><b>Why two sync modes?</b><p>Google intentionally blocks anonymous changes to shared Sheets. Optional Apps Script enables write-back without asking users for Google OAuth access.</p></div></aside>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <dialog id="software-dialog">
+      <form id="software-form" method="dialog"><div class="dialog-head"><div><p class="eyebrow">CATALOG ENTRY</p><h2 id="dialog-title">Add software</h2></div><button type="button" class="icon-button" data-close aria-label="Close">×</button></div><input name="id" type="hidden" /><input name="created_at" type="hidden" />
+        <div class="form-grid"><label class="span-2">Name *<input name="name" required autofocus /></label><label>Publisher<input name="publisher" /></label><label>Category<input name="category" placeholder="Development" /></label><label>Platforms<input name="platforms" placeholder="windows, macos, linux" /></label><label>Tags<input name="tags" placeholder="editor, essential" /></label><label>Source<select name="source_type"><option value="custom">Custom installer</option><option value="winget">winget</option><option value="brew">Homebrew</option><option value="apt">APT</option><option value="dnf">DNF</option><option value="pacman">Pacman</option><option value="flatpak">Flatpak</option></select></label><label>Source/package ID<input name="source_id" placeholder="Publisher.Package" /></label><label>Installer type<select name="installer_type"><option value="other">Other / interactive</option><option value="msi">MSI</option><option value="inno">Inno Setup</option><option value="nsis">NSIS</option><option value="pkg">PKG</option><option value="dmg">DMG</option><option value="deb">DEB</option><option value="rpm">RPM</option><option value="appimage">AppImage</option></select></label><label id="download-url-field">Download URL<input name="download_url" type="url" /></label><label class="span-2">Silent arguments<input name="silent_args" placeholder="Optional; defaults are used for known installers" /></label><label class="span-2">SHA-256 checksum<input name="checksum_sha256" pattern="^$|^[A-Fa-f0-9]{64}$" title="64 hexadecimal characters" /></label><label class="span-2">Notes<textarea name="notes" rows="3"></textarea></label></div>
+        <div class="dialog-actions"><button type="button" class="button ghost" data-close>Cancel</button><button type="submit" class="button primary">Save software</button></div>
+      </form>
+    </dialog>
+    <dialog id="suggestion-dialog"><div class="dialog-head"><div><p class="eyebrow">INSTALLER MATCHES</p><h2>Confirm installer files</h2></div><button class="icon-button" data-close-suggestions>×</button></div><p class="help">Suggestions are never linked automatically. Confirm only files you trust.</p><div id="suggestion-list" class="review-list"></div></dialog>
+    <div id="toast-region" aria-live="polite"></div>
+  </body>
+</html>

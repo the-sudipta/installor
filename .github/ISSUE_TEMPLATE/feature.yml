@@ -1,0 +1,47 @@
+name: Feature or research proposal
+description: Propose a scoped capability, experiment, or platform improvement.
+title: "[Proposal]: "
+labels: [enhancement, needs-triage]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem and users
+      description: What verified problem exists, and who experiences it?
+    validations:
+      required: true
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Desired outcome
+      description: Describe an observable result rather than only an implementation.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives and evidence
+      description: What existing tools or approaches were considered?
+  - type: textarea
+    id: boundaries
+    attributes:
+      label: Privacy, security, and platform implications
+      description: Identify data, credential, process-execution, policy, or compatibility effects.
+    validations:
+      required: true
+  - type: dropdown
+    id: collaboration
+    attributes:
+      label: Proposal type
+      options: [Community contribution, Research collaboration, Industrial pilot, Sponsored engineering, General idea]
+    validations:
+      required: true
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Submission checks
+      options:
+        - label: I searched existing issues and the roadmap.
+          required: true
+        - label: I have not included private or institutional data.
+          required: true

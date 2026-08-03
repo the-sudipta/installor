@@ -1,0 +1,41 @@
+{
+  "name": "installor",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Local-first cross-platform software catalog and installer orchestrator with account-independent public Google Sheet imports.",
+  "author": "Sudipta Kumar (https://github.com/the-sudipta)",
+  "license": "Apache-2.0",
+  "homepage": "https://the-sudipta.github.io/installor/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/the-sudipta/installor.git"
+  },
+  "bugs": {
+    "url": "https://github.com/the-sudipta/installor/issues"
+  },
+  "keywords": [
+    "software-catalog",
+    "software-inventory",
+    "installer",
+    "package-manager",
+    "local-first",
+    "google-sheets",
+    "tauri",
+    "rust",
+    "sqlite",
+    "cross-platform"
+  ],
+  "type": "module",
+  "scripts": {
+    "tauri": "tauri",
+    "dev": "tauri dev",
+    "build": "tauri build",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2",
+    "jsdom": "^26.1.0",
+    "vitest": "^3.2.4"
+  }
+}

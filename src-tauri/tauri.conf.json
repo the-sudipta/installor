@@ -1,0 +1,46 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Installor",
+  "version": "0.1.0",
+  "identifier": "com.installor.desktop",
+  "build": {
+    "frontendDist": "../src"
+  },
+  "app": {
+    "withGlobalTauri": true,
+    "windows": [
+      {
+        "title": "Installor",
+        "width": 1180,
+        "height": 760,
+        "minWidth": 900,
+        "minHeight": 600
+      }
+    ],
+    "security": {
+      "csp": null,
+      "assetProtocol": {
+        "enable": true,
+        "scope": ["$APPDATA/**", "$DOWNLOAD/**"]
+      }
+    }
+  },
+  "bundle": {
+    "active": true,
+    "publisher": "Installor",
+    "homepage": "https://the-sudipta.github.io/installor/",
+    "license": "Apache-2.0",
+    "category": "Utility",
+    "copyright": "Copyright © 2026 Sudipta Kumar and Installor contributors",
+    "shortDescription": "Local-first software catalog and installer orchestrator",
+    "longDescription": "Catalog, detect, import, download, verify, and install software through explicit cross-platform workflows.",
+    "targets": "all",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ]
+  }
+}

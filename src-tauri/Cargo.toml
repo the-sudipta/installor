@@ -1,0 +1,56 @@
+[package]
+name = "installor"
+version = "0.1.0"
+description = "Installor cross-platform software catalog and installer orchestrator"
+authors = ["Sudipta Kumar and Installor contributors"]
+license = "Apache-2.0"
+repository = "https://github.com/the-sudipta/installor"
+homepage = "https://the-sudipta.github.io/installor/"
+keywords = ["installer", "software-catalog", "local-first", "tauri"]
+categories = ["gui", "os"]
+edition = "2024"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lib]
+# The `_lib` suffix may seem redundant but it is necessary
+# to make the lib name unique and wouldn't conflict with the bin name.
+# This seems to be only an issue on Windows, see https://github.com/rust-lang/cargo/issues/8519
+name = "installor_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = ["protocol-asset"] }
+tauri-plugin-opener = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+reqwest = { version = "0.13.4", features = ["json", "query", "stream"] }
+tokio = { version = "1.53.1", features = ["full"] }
+rusqlite = { version = "0.40.1", features = ["bundled"] }
+sha2 = "0.11.0"
+directories = "6.0.0"
+keyring = "4.1.6"
+walkdir = "2.5.0"
+thiserror = "2.0.19"
+strsim = "0.11.1"
+uuid = { version = "1.24.0", features = ["v4", "serde"] }
+chrono = { version = "0.4.45", features = ["serde"] }
+open = "5.4.0"
+csv = "1.4.0"
+url = "2.5.8"
+futures-util = "0.3.33"
+shell-words = "1.1.1"
+tempfile = "3.27.0"
+
+[target."cfg(windows)".dependencies]
+winreg = "0.56.0"
+
+[target.'cfg(target_os = "macos")'.dependencies]
+plist = "1.10.0"
+
+[dev-dependencies]
+tempfile = "3.27.0"
+wiremock = "0.6.5"
