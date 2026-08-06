@@ -1,6 +1,6 @@
 [package]
 name = "installor"
-version = "0.1.1"
+version = "0.2.0"
 description = "Installor cross-platform software catalog and installer orchestrator"
 authors = ["Sudipta Kumar and Installor contributors"]
 license = "Apache-2.0"

@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#071127" />
     <meta name="color-scheme" content="dark" />
-    <meta name="description" content="Installor is a local-first desktop software catalog and installer orchestrator for Windows, macOS, and Linux, with account-independent public Google Sheet imports." />
+    <meta name="description" content="Installor is a local-first desktop software catalog and installer orchestrator for Windows, macOS, and Linux, with guided cross-device Google Sheets synchronization." />
     <meta name="keywords" content="Installor, software catalog, software inventory, installer orchestrator, package manager, Windows software deployment, macOS software deployment, Linux package management, Google Sheets software catalog, Tauri, Rust, SQLite, local-first, human-in-the-loop automation, software supply chain, Industrial PhD research" />
     <meta name="author" content="Sudipta Kumar" />
     <meta name="robots" content="index, follow" />
@@ -15,7 +15,7 @@
     <link rel="manifest" href="site.webmanifest" />
     <meta property="og:type" content="website" />
     <meta property="og:title" content="Installor — Software ready anywhere" />
-    <meta property="og:description" content="A local-first, cross-platform software catalog, detection, verification, and installation workflow." />
+    <meta property="og:description" content="Scan and curate software in bulk, synchronize catalogs between computers through Google Sheets, verify downloads, and keep every installation explicit." />
     <meta property="og:url" content="https://the-sudipta.github.io/installor/" />
     <meta property="og:image" content="https://the-sudipta.github.io/installor/assets/installor-application.png" />
     <meta property="og:image:alt" content="Installor desktop application showing its private software catalog" />
@@ -33,8 +33,8 @@
         "name": "Installor",
         "applicationCategory": "UtilitiesApplication",
         "operatingSystem": "Windows, macOS, Linux",
-        "softwareVersion": "0.1.1",
-        "description": "Local-first software catalog, detection, acquisition, verification, and installation orchestration.",
+        "softwareVersion": "0.2.0",
+        "description": "Local-first software catalog, bulk detection review, guided Google Sheets synchronization, acquisition, verification, and installation orchestration.",
         "url": "https://the-sudipta.github.io/installor/",
         "downloadUrl": "https://github.com/the-sudipta/installor/releases/latest",
         "codeRepository": "https://github.com/the-sudipta/installor",
@@ -73,9 +73,9 @@
         <div class="hero-copy reveal">
           <div class="eyebrow"><span></span> Local-first software operations</div>
           <h1>Your software.<br /><em>Ready anywhere.</em></h1>
-          <p class="lede">Build one portable catalog, see what is already installed, acquire trusted packages, verify downloads, and execute explicit installation plans across your machines.</p>
+          <p class="lede">Scan and curate software in bulk, synchronize one portable catalog between computers, acquire trusted packages, verify downloads, and execute explicit installation plans.</p>
           <div class="hero-actions">
-            <a class="button primary" href="https://github.com/the-sudipta/installor/releases/latest">Download v0.1.1 <span>↘</span></a>
+            <a class="button primary" href="https://github.com/the-sudipta/installor/releases/latest">Download v0.2.0 <span>↘</span></a>
             <a class="button secondary" href="https://github.com/the-sudipta/installor">Explore the source <span>↗</span></a>
           </div>
           <div class="hero-facts" aria-label="Project facts">
@@ -110,13 +110,13 @@
             <div class="feature-number">01</div>
             <div class="feature-icon cobalt">▦</div>
             <h3>Portable catalog</h3>
-            <p>Record package IDs, direct URLs, installer formats, checksums, platforms, tags, and machine-specific state.</p>
+            <p>Record package IDs, direct URLs, installer formats, checksums, platforms, tags, and named-device categories.</p>
           </article>
           <article class="feature reveal" data-delay="1">
             <div class="feature-number">02</div>
             <div class="feature-icon violet">⌁</div>
             <h3>Platform detection</h3>
-            <p>Review filtered Windows registry, macOS system profile, or Linux package-tool results before adding anything.</p>
+            <p>Review filtered Windows, macOS, or Linux results with checkboxes, search, Select visible, Add selected, and Add all.</p>
           </article>
           <article class="feature reveal" data-delay="2">
             <div class="feature-number">03</div>
@@ -136,22 +136,23 @@
       <section class="section workflow" id="workflow">
         <div class="workflow-copy reveal">
           <div class="section-label">02 / One source of intent</div>
-          <h2>A shared Sheet.<br /><em>Zero account plumbing.</em></h2>
-          <p>Publish a `Catalog` tab as “Anyone with the link — Viewer,” then paste its normal Share URL. The Sheet can belong to any Google account.</p>
+          <h2>Your named devices.<br /><em>Without OAuth plumbing.</em></h2>
+          <p>Import any public Viewer link, or use the five-step in-app wizard to copy a version-matched Apps Script and synchronize records by the device names users choose.</p>
           <ul class="check-list">
             <li>No OAuth client or Google Cloud project</li>
             <li>No API key or developer-created connection</li>
             <li>Read-only by design in public-link mode</li>
-            <li>Optional owner-deployed bridge for write-back</li>
+            <li>Guided owner-deployed bridge for write-back</li>
+            <li>Full-library backfill and synchronized removals</li>
           </ul>
           <a class="text-link" href="https://github.com/the-sudipta/installor/blob/main/docs/USER_GUIDE.md#5-import-any-publicly-shared-google-sheet">See the exact Sheet workflow <span>↗</span></a>
         </div>
         <div class="flow-panel reveal" data-delay="1" aria-label="Google Sheet import flow">
-          <div class="flow-node sheet-node"><span>▤</span><b>Public Sheet</b><small>Any owner · Viewer link</small></div>
-          <div class="flow-line"><span>anonymous CSV</span><i></i></div>
-          <div class="flow-node installor-node"><img src="assets/installor-icon.png" alt="" /><b>Installor</b><small>Parse · review · store</small></div>
-          <div class="flow-line"><span>local only</span><i></i></div>
-          <div class="flow-node db-node"><span>◉</span><b>SQLite</b><small>Your device · your catalog</small></div>
+          <div class="flow-node sheet-node"><span>▤</span><b>Office Desktop</b><small>Scan · select · approve</small></div>
+          <div class="flow-line"><span>guided sync</span><i></i></div>
+          <div class="flow-node installor-node"><img src="assets/installor-icon.png" alt="" /><b>Google Sheet</b><small>Catalog · machines · removals</small></div>
+          <div class="flow-line"><span>sync metadata</span><i></i></div>
+          <div class="flow-node db-node"><span>◉</span><b>Research Laptop</b><small>Exact device category</small></div>
         </div>
       </section>
 
@@ -164,7 +165,7 @@
         <figure class="app-frame reveal">
           <div class="frame-glow" aria-hidden="true"></div>
           <img src="assets/installor-application.png" alt="Installor desktop app with navigation, catalog metrics, search, and explicit download and install actions" loading="lazy" />
-          <figcaption>Installor v0.1.1 running on Windows. The screenshot contains an empty local catalog and no personal data.</figcaption>
+          <figcaption>Installor's Windows interface with an empty local catalog. The screenshot contains no personal information.</figcaption>
         </figure>
       </section>
 
@@ -200,7 +201,7 @@
 
       <section class="section final-cta reveal">
         <img src="assets/installor-icon.png" alt="" />
-        <div><div class="section-label">Version 0.1.1</div><h2>Build your software library.</h2><p>Start locally. Import from any public Sheet. Keep every consequential action visible.</p></div>
+        <div><div class="section-label">Version 0.2.0</div><h2>Build your software library.</h2><p>Start locally. Synchronize between computers. Keep every consequential action visible.</p></div>
         <a class="button primary large" href="https://github.com/the-sudipta/installor/releases/latest">Get Installor <span>↘</span></a>
       </section>
     </main>

@@ -20,7 +20,7 @@ Current approaches frequently optimize for either full automation or manual flex
 
 ## Existing research artifact
 
-Installor v0.1.1 contributes an executable Tauri/Rust prototype with a local SQLite model, cross-platform detection parsers, account-independent public-Sheet exchange, optional owner-controlled write-back, integrity-aware downloads, structured install plans, explicit suggestion confirmation, offline retry, automated tests, and documented trust boundaries.
+Installor v0.2.0 contributes an executable Tauri/Rust prototype with a local SQLite model, cross-platform detection parsers, account-independent public-Sheet exchange, guided owner-controlled write-back, named-device categorization, integrity-aware downloads, structured install plans, explicit suggestion confirmation, offline retry, automated tests, and documented trust boundaries.
 
 This artifact makes it possible to instrument realistic workflows and compare design alternatives while keeping the implementation small enough for rigorous inspection.
 

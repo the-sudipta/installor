@@ -15,10 +15,10 @@ jobs:
         platform: [windows-latest, macos-latest, ubuntu-22.04]
     runs-on: ${{ matrix.platform }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
-          node-version: 20
+          node-version: 24
           cache: npm
       - uses: dtolnay/rust-toolchain@stable
         with:
@@ -37,6 +37,6 @@ jobs:
         with:
           tagName: ${{ github.ref_name }}
           releaseName: Installor ${{ github.ref_name }}
-          releaseBody: See CHANGELOG.md and the release page for verified behavior, installation guidance, checksums, and platform limitations.
+          releaseBody: Installor v0.2.0 adds guided Google Sheets synchronization, full-library backfill, bulk scan review, bulk safe removal, exact machine labels, deletion propagation, detailed sync reports, and contextual in-app help. See docs/RELEASE_NOTES_v0.2.0.md for the complete verified workflow and upgrade guidance.
           releaseDraft: false
           prerelease: false

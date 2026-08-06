@@ -2,8 +2,8 @@ cff-version: 1.2.0
 message: "If you use Installor in research, teaching, or an industrial study, please cite this software."
 title: "Installor"
 type: software
-version: 0.1.1
-date-released: 2026-08-03
+version: 0.2.0
+date-released: 2026-08-06
 authors:
   - family-names: "Kumar"
     given-names: "Sudipta"

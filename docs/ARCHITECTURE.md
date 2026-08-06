@@ -35,7 +35,7 @@ flowchart LR
 
 - `catalog`: portable software identity, source, installer, checksum, tags, and timestamps.
 - `installations`: machine-specific status, versions, paths, and verification time.
-- `sync_queue`: durable local operations awaiting optional remote write-back.
+- `sync_queue`: durable local upsert and deletion operations awaiting optional remote write-back.
 - `settings`: non-secret preferences and endpoint URL.
 - OS credential vault: Apps Script shared secret under service `com.installor.desktop`.
 
@@ -54,12 +54,14 @@ SQLite schema creation is idempotent. The local database is the immediate applic
 
 ## Reconciliation
 
-During optional sync, remote rows are pulled first. For matching IDs, a strictly newer `updated_at` value wins; ties remain local. Pending local operations are pushed after merge. Failed pushes stay in `sync_queue` and retry on the next successful sync. There is no background polling service in v0.1.1.
+During optional sync, remote rows and deletion tombstones are pulled first. For matching IDs, a strictly newer `updated_at` value wins; ties remain local. A local deletion already waiting in `sync_queue` takes precedence over the corresponding remote row, preventing resurrection before the deletion reaches Google. Pending local operations are then pushed; failed pushes remain queued for the next attempt.
+
+The Apps Script bridge stores current state in `Catalog` and `Installations`, plus deletion timestamps in `Installor Deletions`. Upserting a record clears its older tombstone. A full-library push replaces duplicate queued upserts with the current local snapshot while preserving deletion operations. There is no background polling service in v0.2.0; startup and user-requested synchronization are explicit and report their results.
 
 ## Verification strategy
 
 - Rust unit/integration tests cover SQLite round trips, parsers, plan arguments, download/checksum behavior, file ranking, process execution, and merge/retry.
-- Vitest/jsdom tests cover selection, validation, search, and status rendering.
+- Vitest/jsdom tests cover selection, validation, search, machine-specific status, filtering, and stable detected-record identity.
 - GitHub Actions executes formatting, strict linting, frontend tests, and Rust tests on Windows, macOS, and Ubuntu.
 - Tagged builds create native packages; real-hardware and signing status are documented separately from automated evidence.
 

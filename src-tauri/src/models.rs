@@ -155,10 +155,60 @@ pub struct AppSettings {
     pub has_shared_secret: bool,
 }
 
+#[derive(Serialize, Deserialize, Clone, Debug, Default, PartialEq, Eq)]
+pub struct DeleteMarker {
+    pub id: String,
+    pub deleted_at: String,
+}
+
 #[derive(Serialize, Deserialize, Clone, Debug, Default)]
 pub struct CatalogBundle {
     pub catalog: Vec<CatalogEntry>,
     pub installations: Vec<InstallationEntry>,
+    #[serde(default)]
+    pub deleted_catalog: Vec<DeleteMarker>,
+    #[serde(default)]
+    pub deleted_installations: Vec<DeleteMarker>,
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug, Default)]
+pub struct SyncReport {
+    pub pulled_catalog: usize,
+    pub pulled_installations: usize,
+    pub removed_catalog: usize,
+    pub removed_installations: usize,
+    pub pushed_catalog: usize,
+    pub pushed_installations: usize,
+    pub pushed_deletions: usize,
+    pub pending_after: usize,
+    pub last_synced_at: String,
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug, Default)]
+pub struct SyncResult {
+    pub bundle: CatalogBundle,
+    pub report: SyncReport,
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug, Default)]
+pub struct BulkAddResult {
+    pub bundle: CatalogBundle,
+    pub catalog_added: usize,
+    pub installations_recorded: usize,
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug, Default)]
+pub struct AppsScriptSetup {
+    pub script: String,
+    pub secret_created: bool,
+    pub source_url: String,
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug, Default)]
+pub struct SyncState {
+    pub configured: bool,
+    pub pending_changes: usize,
+    pub last_synced_at: String,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]

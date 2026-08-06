@@ -9,6 +9,30 @@ All notable changes to Installor are documented here. The format follows [Keep a
 - Complete signed-package and real-hardware QA on Windows, macOS, and representative Linux distributions.
 - Add richer provenance and policy metadata without weakening explicit user control.
 
+## [0.2.0] — 2026-08-06
+
+### Added
+
+- In-app, version-matched Google Apps Script setup with a generated credential-vault secret and one-click script copying.
+- A guided write-back wizard that saves, tests, and reports the connected Google Sheet before offering a full-library push.
+- Bulk checkboxes for detected software, including Select visible, Clear, Add selected, and Add all actions.
+- Bulk catalog removal with explicit confirmation that applications and files are not uninstalled or deleted.
+- Detailed synchronization reports covering uploaded, downloaded, removed, and pending records.
+- User-defined device categories and installation-detail dialogs in the catalog.
+- Contextual information controls throughout catalog, detection, setup, synchronization, and local preferences.
+- Remote deletion tombstones for catalog and installation records.
+
+### Changed
+
+- Existing local records can now be queued and pushed after Google synchronization is configured, eliminating the v0.1 backfill gap.
+- Sync state now displays connection, pending-change, and last-success information instead of a generic completion toast.
+- Google Sheet setup and the PC-A → Sheet → PC-B workflow are documented directly inside Installor.
+
+### Fixed
+
+- Pending local removals cannot be resurrected by an older remote list during synchronization.
+- Full-library pushes deduplicate queued upserts while preserving pending deletions.
+
 ## [0.1.1] — 2026-08-03
 
 ### Fixed
@@ -37,6 +61,7 @@ All notable changes to Installor are documented here. The format follows [Keep a
 - Windows production build, executable launch, SQLite initialization, Rust test suite, frontend test suite, formatting, and strict linting.
 - macOS and Linux parsers and plan construction are exercised by platform-independent tests; native packaging and real-hardware QA remain release limitations.
 
-[Unreleased]: https://github.com/the-sudipta/installor/compare/v0.1.1...HEAD
+[Unreleased]: https://github.com/the-sudipta/installor/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/the-sudipta/installor/compare/v0.1.1...v0.2.0
 [0.1.1]: https://github.com/the-sudipta/installor/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/the-sudipta/installor/releases/tag/v0.1.0

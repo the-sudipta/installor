@@ -195,6 +195,7 @@ pub async fn import(client: &reqwest::Client, shared_url: &str) -> InstallorResu
     Ok(CatalogBundle {
         catalog,
         installations,
+        ..Default::default()
     })
 }
 

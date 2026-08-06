@@ -15,6 +15,10 @@ use directories::UserDirs;
 use std::path::PathBuf;
 use tauri::{AppHandle, Emitter, Manager, State};
 
+const APPS_SCRIPT_TEMPLATE: &str = include_str!("../../apps-script/Code.gs");
+const APPS_SCRIPT_SOURCE_URL: &str =
+    "https://github.com/the-sudipta/installor/blob/v0.2.0/apps-script/Code.gs";
+
 #[derive(Clone)]
 struct AppState {
     db: Database,
@@ -93,6 +97,17 @@ fn delete_catalog(id: String, state: State<'_, AppState>) -> CmdResult<()> {
         .map_err(err)
 }
 
+#[tauri::command]
+fn delete_catalog_bulk(ids: Vec<String>, state: State<'_, AppState>) -> CmdResult<usize> {
+    if ids.is_empty() {
+        return Ok(0);
+    }
+    state
+        .db
+        .delete_catalog_bulk(&ids, should_queue(&state.db))
+        .map_err(err)
+}
+
 fn load_settings(db: &Database) -> AppSettings {
     AppSettings {
         public_sheet_url: db
@@ -134,11 +149,53 @@ fn get_settings(state: State<'_, AppState>) -> AppSettings {
 }
 
 #[tauri::command]
+fn get_sync_state(state: State<'_, AppState>) -> CmdResult<SyncState> {
+    Ok(SyncState {
+        configured: should_queue(&state.db) && !get_secret().is_empty(),
+        pending_changes: state.db.pending_count().map_err(err)?,
+        last_synced_at: state
+            .db
+            .setting("last_synced_at")
+            .map_err(err)?
+            .unwrap_or_default(),
+    })
+}
+
+#[tauri::command]
+fn prepare_apps_script() -> CmdResult<AppsScriptSetup> {
+    let current = get_secret();
+    let secret_created = current.is_empty();
+    let secret = if secret_created {
+        format!(
+            "{}{}",
+            uuid::Uuid::new_v4().simple(),
+            uuid::Uuid::new_v4().simple()
+        )
+    } else {
+        current
+    };
+    if secret_created {
+        secret_entry()?.set_password(&secret).map_err(err)?;
+    }
+    Ok(AppsScriptSetup {
+        script: APPS_SCRIPT_TEMPLATE.replace("REPLACE_WITH_YOUR_OWN_SECRET", &secret),
+        secret_created,
+        source_url: APPS_SCRIPT_SOURCE_URL.into(),
+    })
+}
+
+#[tauri::command]
 fn save_settings(
-    settings: AppSettings,
+    mut settings: AppSettings,
     shared_secret: Option<String>,
     state: State<'_, AppState>,
 ) -> CmdResult<AppSettings> {
+    let device_name = settings.machine_label.trim().to_string();
+    if device_name.is_empty() {
+        return Err("Device name is required".into());
+    }
+    settings.machine_label = device_name.clone();
+    let previous_device_name = load_settings(&state.db).machine_label;
     for (k, v) in [
         ("public_sheet_url", settings.public_sheet_url.as_str()),
         ("apps_script_url", settings.apps_script_url.as_str()),
@@ -160,6 +217,13 @@ fn save_settings(
         .map_err(err)?;
     if let Some(secret) = shared_secret.filter(|s| !s.is_empty()) {
         secret_entry()?.set_password(&secret).map_err(err)?;
+    }
+    if previous_device_name != device_name {
+        let id = machine_id(&state.db)?;
+        state
+            .db
+            .rename_machine(&id, &device_name, should_queue(&state.db))
+            .map_err(err)?;
     }
     Ok(load_settings(&state.db))
 }
@@ -193,7 +257,16 @@ async fn test_apps_script_connection(state: State<'_, AppState>) -> CmdResult<Pi
 }
 
 #[tauri::command]
-async fn sync_now(state: State<'_, AppState>) -> CmdResult<CatalogBundle> {
+async fn sync_now(state: State<'_, AppState>) -> CmdResult<SyncResult> {
+    merge::sync_now(&state.db, &configured_client(&state.db)?)
+        .await
+        .map_err(err)
+}
+
+#[tauri::command]
+async fn push_entire_library(state: State<'_, AppState>) -> CmdResult<SyncResult> {
+    configured_client(&state.db)?;
+    state.db.queue_full_library().map_err(err)?;
     merge::sync_now(&state.db, &configured_client(&state.db)?)
         .await
         .map_err(err)
@@ -205,16 +278,13 @@ fn detect_installed_software() -> CmdResult<Vec<DetectedEntry>> {
 }
 
 #[tauri::command]
-fn add_detected_software(
-    detected: DetectedEntry,
-    state: State<'_, AppState>,
-) -> CmdResult<CatalogBundle> {
-    let existing = state
-        .db
+fn add_detected_entry(db: &Database, detected: DetectedEntry) -> CmdResult<bool> {
+    let existing = db
         .list_catalog()
         .map_err(err)?
         .into_iter()
         .find(|e| e.name.eq_ignore_ascii_case(&detected.name));
+    let created = existing.is_none();
     let now = now_rfc3339();
     let software_id = if let Some(e) = existing {
         e.id
@@ -231,18 +301,15 @@ fn add_detected_software(
             ..Default::default()
         };
         let id = e.id.clone();
-        state
-            .db
-            .upsert_catalog(&e, should_queue(&state.db))
-            .map_err(err)?;
+        db.upsert_catalog(&e, should_queue(db)).map_err(err)?;
         id
     };
-    let mid = machine_id(&state.db)?;
+    let mid = machine_id(db)?;
     let inst = InstallationEntry {
         id: format!("{software_id}-{mid}"),
         software_id,
         machine_id: mid,
-        machine_label: load_settings(&state.db).machine_label,
+        machine_label: load_settings(db).machine_label,
         installed: true,
         installed_version: detected.version,
         installed_path: detected.installed_path,
@@ -250,11 +317,36 @@ fn add_detected_software(
         last_verified_at: now.clone(),
         updated_at: now,
     };
-    state
-        .db
-        .upsert_installation(&inst, should_queue(&state.db))
+    db.upsert_installation(&inst, should_queue(db))
         .map_err(err)?;
+    Ok(created)
+}
+
+#[tauri::command]
+fn add_detected_software(
+    detected: DetectedEntry,
+    state: State<'_, AppState>,
+) -> CmdResult<CatalogBundle> {
+    add_detected_entry(&state.db, detected)?;
     state.db.list_bundle().map_err(err)
+}
+
+#[tauri::command]
+fn add_detected_software_bulk(
+    detected: Vec<DetectedEntry>,
+    state: State<'_, AppState>,
+) -> CmdResult<BulkAddResult> {
+    let installations_recorded = detected.len();
+    let mut catalog_added = 0;
+    for item in detected {
+        catalog_added += usize::from(add_detected_entry(&state.db, item)?);
+    }
+    let bundle = state.db.list_bundle().map_err(err)?;
+    Ok(BulkAddResult {
+        installations_recorded,
+        bundle,
+        catalog_added,
+    })
 }
 
 #[tauri::command]
@@ -445,7 +537,7 @@ pub fn run() {
                 db: Database::new(data.join("installor.sqlite3"))
                     .map_err(|e| std::io::Error::other(e.to_string()))?,
                 http: reqwest::Client::builder()
-                    .user_agent("Installor/0.1")
+                    .user_agent("Installor/0.2")
                     .build()
                     .map_err(|e| std::io::Error::other(e.to_string()))?,
             };
@@ -474,13 +566,18 @@ pub fn run() {
             get_catalog,
             save_catalog,
             delete_catalog,
+            delete_catalog_bulk,
             get_settings,
+            get_sync_state,
+            prepare_apps_script,
             save_settings,
             import_public_sheet,
             test_apps_script_connection,
             sync_now,
+            push_entire_library,
             detect_installed_software,
             add_detected_software,
+            add_detected_software_bulk,
             download_selected,
             install_selected,
             find_installer_files,

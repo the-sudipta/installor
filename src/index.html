@@ -7,6 +7,7 @@
     <title>Installor — Your software, ready anywhere</title>
     <link rel="icon" href="./assets/installor-logo.png" />
     <link rel="stylesheet" href="./styles.css" />
+    <link rel="stylesheet" href="./sync.css" />
     <script type="module" src="./main.js" defer></script>
   </head>
   <body>
@@ -16,69 +17,98 @@
         <nav aria-label="Main navigation">
           <button class="nav-item active" data-view="catalog"><span>▦</span> Catalog</button>
           <button class="nav-item" data-view="detected"><span>⌁</span> Detected software</button>
-          <button class="nav-item" data-view="settings"><span>⚙</span> Settings</button>
+          <button class="nav-item" data-view="settings"><span>⚙</span> Settings &amp; sync</button>
         </nav>
-        <div class="sidebar-foot"><span class="health-dot"></span><span id="local-status">Local database ready</span><small>Private by default</small></div>
+        <div class="sidebar-foot"><span class="health-dot"></span><span id="local-status">Local database ready</span><small id="sync-side-status">Private by default · v0.2.0</small></div>
       </aside>
 
       <main>
         <header class="topbar">
-          <div><p class="eyebrow">PERSONAL SOFTWARE LIBRARY</p><h1 id="view-title">Your catalog</h1></div>
-          <div class="top-actions"><button class="button ghost" id="sync-button">↻ Sync now</button><button class="button primary" id="add-button">＋ Add software</button></div>
+          <div><p class="eyebrow">PERSONAL SOFTWARE LIBRARY</p><div class="title-line"><h1 id="view-title">Your catalog</h1><button class="info-button" data-help-title="Your catalog" data-help="Your catalog is the permanent, reusable software library shared between your computers. Scanned results become catalog entries only after you approve them." aria-label="About this page">i</button></div></div>
+          <div class="sync-area">
+            <span id="sync-status" class="sync-status">Not connected</span>
+            <button class="info-button" data-help-title="What synchronization does" data-help="Sync downloads newer catalog and installation records from your Google Sheet, uploads pending local changes, and applies removals from other computers. It never scans, installs, uninstalls, or deletes files." aria-label="What does sync do?">i</button>
+            <button class="button ghost" id="sync-button"><span id="sync-label">Set up sync</span></button>
+            <button class="button primary" id="add-button">＋ Add software</button>
+          </div>
         </header>
 
         <section id="catalog-view" class="view active">
           <div class="metric-row">
-            <article><span>Catalog</span><strong id="catalog-count">0</strong><small>saved applications</small></article>
-            <article><span>This machine</span><strong id="installed-count">0</strong><small>installed and verified</small></article>
-            <article><span>Ready to install</span><strong id="ready-count">0</strong><small>installer source configured</small></article>
+            <article><div class="metric-label"><span>Catalog</span><button class="info-button tiny" data-help-title="Catalog total" data-help="Permanent software records available to every connected computer. Removing a catalog item does not uninstall it." aria-label="About catalog total">i</button></div><strong id="catalog-count">0</strong><small>saved applications</small></article>
+            <article><div class="metric-label"><span>This device</span><button class="info-button tiny" data-help-title="Installed on this device" data-help="Applications confirmed by a scan or successful Installor installation under the device name shown in Settings." aria-label="About this device count">i</button></div><strong id="installed-count">0</strong><small>installed and verified</small></article>
+            <article><div class="metric-label"><span>Ready to install</span><button class="info-button tiny" data-help-title="Ready to install" data-help="Catalog entries with a package-manager ID, download URL, or confirmed installer file. Installor still asks before installing." aria-label="About ready to install">i</button></div><strong id="ready-count">0</strong><small>installer source configured</small></article>
           </div>
           <div class="panel">
-            <div class="toolbar">
+            <div class="toolbar catalog-toolbar">
               <div class="search-wrap"><span>⌕</span><input id="search" type="search" placeholder="Search name, publisher, category, or tag…" /></div>
-              <button class="button subtle" id="select-all">Select all</button><button class="button subtle" id="select-none">Clear</button>
+              <select id="status-filter" class="toolbar-select" aria-label="Filter catalog by device category"><option value="all">All devices &amp; states</option><option value="here">This device</option><option value="elsewhere">Other devices</option><option value="missing">Not installed on this device</option></select>
+              <button class="info-button" data-help-title="Device categories" data-help="Installor creates these categories from the device names saved in Settings. Choose a named device to see exactly which catalog applications that device reported as installed." aria-label="About device categories">i</button>
+              <button class="info-button" data-help-title="Catalog selection" data-help="Select rows to download, install, or remove them together. Remove only changes the Installor catalog; it never uninstalls software or deletes installer files." aria-label="About catalog actions">i</button>
+              <button class="button subtle" id="select-all">Select visible</button><button class="button subtle" id="select-none">Clear</button>
+              <button class="button danger-outline" id="remove-selected" disabled>Remove selected</button>
               <button class="button subtle" id="find-installers">Find installers</button>
-              <button class="button accent" id="download-selected">↓ Download selected</button><button class="button primary" id="install-selected">Install selected</button>
+              <button class="button accent" id="download-selected" disabled>↓ Download</button><button class="button primary" id="install-selected" disabled>Install</button>
             </div>
+            <div id="selection-summary" class="selection-summary hidden"></div>
             <div id="bulk-status" class="progress-area hidden"><div><span id="progress-label">Working…</span><span id="progress-value"></span></div><progress id="progress-bar" max="100" value="0"></progress></div>
-            <div class="table-wrap"><table><thead><tr><th><input id="select-all-checkbox" type="checkbox" aria-label="Select all" /></th><th>Name</th><th>Publisher</th><th>Category</th><th>Status</th><th>Source</th><th class="align-right">Actions</th></tr></thead><tbody id="catalog-body"></tbody></table><div id="empty-catalog" class="empty hidden"><div class="empty-icon">＋</div><h2>Build your portable software list</h2><p>Add an app, detect what is already installed, or import a public Google Sheet.</p><div><button class="button primary" data-action="add">Add software</button><button class="button ghost" data-action="settings">Import a Sheet</button></div></div></div>
+            <div class="table-wrap"><table><thead><tr><th><input id="select-all-checkbox" type="checkbox" aria-label="Select visible catalog records" /></th><th>Name</th><th>Publisher</th><th>Category</th><th>Devices</th><th>Source</th><th class="align-right">Actions</th></tr></thead><tbody id="catalog-body"></tbody></table><div id="empty-catalog" class="empty hidden"><div class="empty-icon">＋</div><h2>Build your portable software list</h2><p>Add an application, review a device scan, or import a public Google Sheet.</p><div><button class="button primary" data-action="add">Add software</button><button class="button ghost" data-action="settings">Connect a Sheet</button></div></div></div>
           </div>
         </section>
 
         <section id="detected-view" class="view">
-          <div class="section-intro"><div><h2>Installed software review</h2><p>Scan this computer and choose exactly what joins your catalog. Nothing is added automatically.</p></div><button class="button primary" id="detect-button">Scan this computer</button></div>
-          <div class="panel"><div id="detect-loading" class="empty"><div class="radar">⌁</div><h2>Ready to scan</h2><p>System entries and platform package managers are filtered into a reviewable list.</p></div><div id="detected-list" class="review-list"></div></div>
+          <div class="section-intro"><div><div class="title-line"><h2>Installed software review</h2><button class="info-button" data-help-title="Why review detected software?" data-help="A system scan can include drivers, helpers, launchers, and components you may not want in a reusable library. Select only meaningful applications. Adding them records both the catalog item and that it is installed on this computer." aria-label="About detected software">i</button></div><p>Scan this computer, select the applications worth keeping, and add them together.</p></div><button class="button primary" id="detect-button">Scan this computer</button></div>
+          <div class="panel">
+            <div id="detected-toolbar" class="toolbar hidden">
+              <div class="search-wrap"><span>⌕</span><input id="detected-search" type="search" placeholder="Filter detected software…" /></div>
+              <button class="info-button" data-help-title="Add to catalog" data-help="This converts temporary scan results into permanent catalog records and records their version and path under this machine. Nothing is uploaded until you synchronize." aria-label="What does add to catalog mean?">i</button>
+              <button class="button subtle" id="select-all-detected">Select visible</button><button class="button subtle" id="clear-detected">Clear</button>
+              <button class="button accent" id="add-selected-detected" disabled>Add selected to catalog</button>
+              <button class="button primary" id="add-all-detected">Add all</button>
+            </div>
+            <div id="detected-selection-summary" class="selection-summary hidden"></div>
+            <div id="detect-loading" class="empty"><div class="radar">⌁</div><h2>Ready to scan</h2><p>Installor filters operating-system entries into a reviewable list. Scanning alone changes nothing.</p></div><div id="detected-list" class="review-list"></div>
+          </div>
         </section>
 
         <section id="settings-view" class="view">
           <div class="settings-grid">
             <form id="settings-form" class="panel settings-card">
-              <div class="panel-heading"><div><p class="eyebrow">ZERO-ACCOUNT IMPORT</p><h2>Public Google Sheet</h2></div><span class="pill success">No OAuth</span></div>
-              <p class="help">Works with a Sheet owned by any Google account. Set “Anyone with the link” to Viewer, then paste its Share URL. The workbook should have a <b>Catalog</b> tab.</p>
-              <label>Google Sheet share URL<input name="public_sheet_url" type="url" placeholder="https://docs.google.com/spreadsheets/d/…/edit" /></label>
+              <div class="panel-heading"><div><div class="title-line"><h2>Public Google Sheet</h2><button class="info-button" data-help-title="Read-only public import" data-help="Anyone-with-the-link Viewer access lets Installor read a Catalog tab without Google sign-in. It cannot upload changes; uploading requires the optional write-back bridge below." aria-label="About public Sheet import">i</button></div><p class="eyebrow top-label">ZERO-ACCOUNT · READ ONLY</p></div><span class="pill success">No OAuth</span></div>
+              <ol class="compact-steps"><li>Share the Sheet as <b>Anyone with the link — Viewer</b>.</li><li>Copy its normal Share URL and paste it below.</li><li>Import and review the records in your catalog.</li></ol>
+              <label>Google Sheet share URL <button type="button" class="info-button tiny" data-help-title="Which link belongs here?" data-help="Paste the normal docs.google.com/spreadsheets Share URL. This field imports data into Installor and never writes to the Sheet." aria-label="About Google Sheet URL">i</button><input name="public_sheet_url" type="url" placeholder="https://docs.google.com/spreadsheets/d/…/edit" /></label>
               <button class="button accent full" type="button" id="import-sheet">Import shared Sheet</button>
-              <div class="rule"><span>optional write-back</span></div>
-              <label>Apps Script Web App URL<input name="apps_script_url" type="url" placeholder="https://script.google.com/macros/s/…/exec" /></label>
-              <label>Shared secret<input name="shared_secret" type="password" placeholder="Stored in your OS credential vault" autocomplete="new-password" /><small id="secret-status"></small></label>
-              <button class="button ghost full" type="button" id="test-connection">Test write-back connection</button>
-              <div class="panel-heading spaced"><div><p class="eyebrow">THIS DEVICE</p><h2>Local preferences</h2></div></div>
-              <label>Machine label<input name="machine_label" placeholder="Studio PC" /></label>
-              <label>Download folder<input name="download_folder" placeholder="Downloads/Installor" /></label>
+
+              <div class="writeback-card">
+                <div><div class="title-line"><h3>Send and synchronize your library</h3><button type="button" class="info-button" data-help-title="Optional write-back" data-help="The owner-deployed Installor bridge lets every connected device upload and receive catalog records under its user-defined device name. Installor never asks for your Google password or OAuth access." aria-label="About write-back synchronization">i</button></div><p>Use the guided setup to copy the version-matched script, connect the Sheet, and push existing records.</p></div>
+                <button class="button primary" type="button" id="open-script-setup">Set up Google synchronization</button>
+              </div>
+
+              <details class="advanced-settings"><summary>Advanced connection details</summary>
+                <label>Apps Script Web App URL <button type="button" class="info-button tiny" data-help-title="Apps Script Web App URL" data-help="This is the deployment URL ending in /exec. It is different from the Google Sheet Share URL and the Apps Script editor URL." aria-label="About Web App URL">i</button><input name="apps_script_url" type="url" placeholder="https://script.google.com/macros/s/…/exec" /></label>
+                <label>Replace shared secret <button type="button" class="info-button tiny" data-help-title="Shared secret" data-help="Installor generates this automatically in guided setup and stores it in your operating-system credential vault. Advanced users may replace it here, but the script must use exactly the same value." aria-label="About shared secret">i</button><input name="shared_secret" type="password" placeholder="Leave blank to keep the stored secret" autocomplete="new-password" /><small id="secret-status"></small></label>
+                <button class="button ghost full" type="button" id="test-connection">Test write-back connection</button>
+              </details>
+
+              <div class="panel-heading spaced"><div><div class="title-line"><h2>Local preferences</h2><button type="button" class="info-button" data-help-title="Local preferences" data-help="These settings belong only to this device. Its saved device name identifies and categorizes installation records throughout the shared catalog." aria-label="About local preferences">i</button></div><p class="eyebrow top-label">THIS DEVICE</p></div></div>
+              <label>Device name <button type="button" class="info-button tiny" data-help-title="Device name" data-help="Give this device a recognizable unique name such as Office Desktop or Research Laptop. Installor uses it as a device category throughout the catalog; renaming it also updates this device's existing records." aria-label="About device name">i</button><input name="machine_label" placeholder="Research Laptop" required /></label>
+              <label>Download folder <button type="button" class="info-button tiny" data-help-title="Download folder" data-help="Installor saves downloaded installers here and searches this location when matching existing installer files." aria-label="About download folder">i</button><input name="download_folder" placeholder="Downloads/Installor" /></label>
               <label class="check-label"><input name="recursive_installer_search" type="checkbox" /> Search download subfolders for installer suggestions</label>
               <button class="button primary full" type="submit">Save settings</button>
             </form>
-            <aside class="panel info-card"><div class="shield">✓</div><h2>Clear privacy boundaries</h2><ul><li><b>Public link:</b> anonymous read-only import; no account connection.</li><li><b>Local catalog:</b> stored in SQLite on this computer.</li><li><b>Shared secret:</b> stored in Windows Credential Manager, macOS Keychain, or Linux Secret Service.</li><li><b>Installs:</b> begin only after you select apps and click Install.</li></ul><div class="notice"><b>Why two sync modes?</b><p>Google intentionally blocks anonymous changes to shared Sheets. Optional Apps Script enables write-back without asking users for Google OAuth access.</p></div></aside>
+            <aside class="panel info-card"><div class="shield">✓</div><h2>Clear privacy boundaries</h2><ul><li><b>Public import:</b> anonymous and read-only.</li><li><b>Local catalog:</b> stored in SQLite on this device.</li><li><b>Bridge secret:</b> generated locally and stored in the OS credential vault.</li><li><b>Sync:</b> exchanges catalog metadata and device installation records.</li><li><b>Remove:</b> never uninstalls applications or deletes files.</li><li><b>Install:</b> begins only after explicit selection and confirmation.</li></ul><div class="notice"><b>Your named devices, one shared library</b><p>Scan and approve software on each device, then synchronize. The catalog creates categories such as “Office Desktop” and “Research Laptop” from the names you assign.</p></div></aside>
           </div>
         </section>
       </main>
     </div>
 
-    <dialog id="software-dialog">
-      <form id="software-form" method="dialog"><div class="dialog-head"><div><p class="eyebrow">CATALOG ENTRY</p><h2 id="dialog-title">Add software</h2></div><button type="button" class="icon-button" data-close aria-label="Close">×</button></div><input name="id" type="hidden" /><input name="created_at" type="hidden" />
-        <div class="form-grid"><label class="span-2">Name *<input name="name" required autofocus /></label><label>Publisher<input name="publisher" /></label><label>Category<input name="category" placeholder="Development" /></label><label>Platforms<input name="platforms" placeholder="windows, macos, linux" /></label><label>Tags<input name="tags" placeholder="editor, essential" /></label><label>Source<select name="source_type"><option value="custom">Custom installer</option><option value="winget">winget</option><option value="brew">Homebrew</option><option value="apt">APT</option><option value="dnf">DNF</option><option value="pacman">Pacman</option><option value="flatpak">Flatpak</option></select></label><label>Source/package ID<input name="source_id" placeholder="Publisher.Package" /></label><label>Installer type<select name="installer_type"><option value="other">Other / interactive</option><option value="msi">MSI</option><option value="inno">Inno Setup</option><option value="nsis">NSIS</option><option value="pkg">PKG</option><option value="dmg">DMG</option><option value="deb">DEB</option><option value="rpm">RPM</option><option value="appimage">AppImage</option></select></label><label id="download-url-field">Download URL<input name="download_url" type="url" /></label><label class="span-2">Silent arguments<input name="silent_args" placeholder="Optional; defaults are used for known installers" /></label><label class="span-2">SHA-256 checksum<input name="checksum_sha256" pattern="^$|^[A-Fa-f0-9]{64}$" title="64 hexadecimal characters" /></label><label class="span-2">Notes<textarea name="notes" rows="3"></textarea></label></div>
-        <div class="dialog-actions"><button type="button" class="button ghost" data-close>Cancel</button><button type="submit" class="button primary">Save software</button></div>
-      </form>
-    </dialog>
+    <dialog id="software-dialog"><form id="software-form" method="dialog"><div class="dialog-head"><div><p class="eyebrow">CATALOG ENTRY</p><h2 id="dialog-title">Add software</h2></div><button type="button" class="icon-button" data-close aria-label="Close">×</button></div><input name="id" type="hidden" /><input name="created_at" type="hidden" /><div class="form-grid"><label class="span-2">Name *<input name="name" required autofocus /></label><label>Publisher<input name="publisher" /></label><label>Category<input name="category" placeholder="Development" /></label><label>Platforms<input name="platforms" placeholder="windows, macos, linux" /></label><label>Tags<input name="tags" placeholder="editor, essential" /></label><label>Source<select name="source_type"><option value="custom">Custom installer</option><option value="winget">winget</option><option value="brew">Homebrew</option><option value="apt">APT</option><option value="dnf">DNF</option><option value="pacman">Pacman</option><option value="flatpak">Flatpak</option></select></label><label>Source/package ID<input name="source_id" placeholder="Publisher.Package" /></label><label>Installer type<select name="installer_type"><option value="other">Other / interactive</option><option value="msi">MSI</option><option value="inno">Inno Setup</option><option value="nsis">NSIS</option><option value="pkg">PKG</option><option value="dmg">DMG</option><option value="deb">DEB</option><option value="rpm">RPM</option><option value="appimage">AppImage</option></select></label><label id="download-url-field">Download URL<input name="download_url" type="url" /></label><label class="span-2">Silent arguments<input name="silent_args" placeholder="Optional; defaults are used for known installers" /></label><label class="span-2">SHA-256 checksum<input name="checksum_sha256" pattern="^$|^[A-Fa-f0-9]{64}$" title="64 hexadecimal characters" /></label><label class="span-2">Notes<textarea name="notes" rows="3"></textarea></label></div><div class="dialog-actions"><button type="button" class="button ghost" data-close>Cancel</button><button type="submit" class="button primary">Save software</button></div></form></dialog>
+
+    <dialog id="script-setup-dialog" class="wide-dialog"><div class="dialog-scroll"><div class="dialog-head sticky-head"><div><p class="eyebrow">GUIDED GOOGLE SHEETS SETUP</p><h2>Connect Installor write-back</h2></div><button type="button" class="icon-button" data-close-script aria-label="Close">×</button></div><div class="wizard-intro"><div class="wizard-number">1</div><div><h3>Open Apps Script from your target Sheet</h3><p>Inside Google Sheets choose <b>Extensions → Apps Script</b>. This keeps the bridge bound to the correct workbook.</p></div></div><div class="wizard-intro"><div class="wizard-number">2</div><div class="wizard-copy"><h3>Copy the ready-to-deploy Installor script</h3><p>The code below matches this Installor release and already contains a locally generated shared secret.</p><textarea id="apps-script-code" class="code-box" readonly aria-label="Ready-to-deploy Apps Script code"></textarea><div class="wizard-actions"><button class="button primary" id="copy-script" type="button">Copy complete script</button><a class="button ghost link-button" id="script-source-link" href="https://github.com/the-sudipta/installor/blob/v0.2.0/apps-script/Code.gs" target="_blank" rel="noreferrer">View official source</a></div></div></div><div class="wizard-intro"><div class="wizard-number">3</div><div><h3>Paste, save, and deploy as a Web app</h3><p>Replace Google’s placeholder code. Choose <b>Deploy → New deployment → Web app</b>, execute as <b>Me</b>, and allow access to <b>Anyone</b>. Copy the deployment URL ending in <code>/exec</code>.</p></div></div><div class="wizard-intro"><div class="wizard-number">4</div><div class="wizard-connect"><h3>Connect and verify</h3><label>Web App deployment URL<input id="wizard-script-url" type="url" placeholder="https://script.google.com/macros/s/…/exec" /></label><button class="button primary" id="save-test-script" type="button">Save and test connection</button><p id="wizard-connection-result" class="inline-result">Not connected yet.</p></div></div><div class="wizard-intro"><div class="wizard-number">5</div><div><h3>Send existing local records</h3><p>After connection, push every existing catalog and installation record—including items added before setup—to this Sheet.</p><button class="button accent" id="push-library" type="button" disabled>Push entire local library</button></div></div></div></dialog>
+
+    <dialog id="help-dialog" class="small-dialog"><div class="dialog-head"><div><p class="eyebrow">INSTALLOR EXPLAINS</p><h2 id="help-title">About this feature</h2></div><button type="button" class="icon-button" data-close-help aria-label="Close">×</button></div><p id="help-copy" class="dialog-copy"></p><div class="dialog-actions"><button type="button" class="button primary" data-close-help>Got it</button></div></dialog>
+    <dialog id="sync-result-dialog" class="small-dialog"><div class="dialog-head"><div><p class="eyebrow">GOOGLE SHEETS</p><h2>Synchronization complete</h2></div><button type="button" class="icon-button" data-close-sync aria-label="Close">×</button></div><div id="sync-result-grid" class="result-grid"></div><p class="dialog-copy">Synchronization exchanges catalog metadata and installation records only. It never installs or removes software.</p><div class="dialog-actions"><button type="button" class="button primary" data-close-sync>Done</button></div></dialog>
+    <dialog id="machine-dialog" class="small-dialog"><div class="dialog-head"><div><p class="eyebrow">MACHINE RECORDS</p><h2 id="machine-dialog-title">Installation details</h2></div><button type="button" class="icon-button" data-close-machine aria-label="Close">×</button></div><div id="machine-list" class="machine-list"></div><div class="dialog-actions"><button type="button" class="button primary" data-close-machine>Done</button></div></dialog>
     <dialog id="suggestion-dialog"><div class="dialog-head"><div><p class="eyebrow">INSTALLER MATCHES</p><h2>Confirm installer files</h2></div><button class="icon-button" data-close-suggestions>×</button></div><p class="help">Suggestions are never linked automatically. Confirm only files you trust.</p><div id="suggestion-list" class="review-list"></div></dialog>
     <div id="toast-region" aria-live="polite"></div>
   </body>

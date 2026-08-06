@@ -53,10 +53,10 @@ No Google Cloud project, OAuth client, API key, or account connection is require
 
 ## Install and start
 
-### Windows—the verified v0.1.1 path
+### Windows—the verified v0.2.0 path
 
 1. Open the [latest release](https://github.com/the-sudipta/installor/releases/latest).
-2. Download `Installor_0.1.1_x64-setup.exe` for the guided installer, or the `.msi` package for managed deployment.
+2. Download `Installor_0.2.0_x64-setup.exe` for the guided installer, or the `.msi` package for managed deployment.
 3. Run the installer and open **Installor** from the Start menu.
 4. An unsigned community build may trigger Microsoft SmartScreen. Review the publisher and release checksum before choosing to continue.
 
@@ -64,10 +64,10 @@ The standalone `installor.exe` is also attached to the release for portable eval
 
 ### macOS and Linux
 
-The codebase, detector implementations, installer plans, platform icons, and GitHub build matrix support macOS and Linux. Native packages are produced by the tagged-release workflow. Because v0.1.1 was manually exercised on Windows, treat other platform packages as evaluation builds until the corresponding checks in [the manual QA matrix](docs/USER_GUIDE.md#platform-status-and-limitations) are completed.
+The codebase, detector implementations, installer plans, platform icons, and GitHub build matrix support macOS and Linux. Native packages are produced by the tagged-release workflow. Because v0.2.0 was manually exercised on Windows, treat other platform packages as evaluation builds until the corresponding checks in [the manual QA matrix](docs/USER_GUIDE.md#platform-status-and-limitations) are completed.
 
 <table width="100%">
-  <tr><th width="22%" align="left">Platform</th><th width="28%" align="left">Detection</th><th width="30%" align="left">Installation routes</th><th width="20%" align="left">v0.1.1 status</th></tr>
+  <tr><th width="22%" align="left">Platform</th><th width="28%" align="left">Detection</th><th width="30%" align="left">Installation routes</th><th width="20%" align="left">v0.2.0 status</th></tr>
   <tr><td>Windows</td><td>Registry uninstall entries</td><td>winget, MSI, Inno Setup, NSIS, interactive installers</td><td><strong>Locally built and tested</strong></td></tr>
   <tr><td>macOS</td><td><code>system_profiler</code></td><td>Homebrew, PKG, DMG, interactive installers</td><td>CI/package configuration ready</td></tr>
   <tr><td>Linux</td><td>dpkg, rpm, pacman, Flatpak, Snap discovery</td><td>APT, DNF, Pacman, Flatpak, DEB, RPM, AppImage</td><td>CI/package configuration ready</td></tr>
@@ -81,7 +81,7 @@ Open **Catalog → Add software** and provide at least a name. For a package-man
 
 ### 2. Review software already on the computer
 
-Open **Detected software → Scan this computer**. Installor filters platform records into a review list. Choose **Add to catalog** for individual applications. Nothing is imported automatically.
+Open **Detected software → Scan this computer**. Installor filters platform records into a review list. Use the row checkboxes, **Select visible**, **Add selected to catalog**, or **Add all** to approve records in bulk. Adding records stores both the portable catalog entry and this computer's installation details; scanning alone changes nothing.
 
 ### 3. Import a public Google Sheet from any account
 
@@ -100,9 +100,21 @@ Select catalog rows, then choose **Download selected**. Installor reports progre
 
 Set the download folder under **Settings**, then choose **Find installers**. Installor ranks filenames against catalog names and shows only suggestions above its confidence threshold. Confirm a suggestion only after checking that the file came from a trusted source.
 
-### 6. Enable optional Sheet write-back
+### 6. Share a named device's catalog with another device
 
-Public Google Sheets cannot accept anonymous edits. If bidirectional synchronization is required, deploy [the included Apps Script bridge](apps-script/README.md) inside the Sheet owner's account, create a private shared secret, and enter both values in **Settings**. The secret is stored through Windows Credential Manager, macOS Keychain, or Linux Secret Service—not in SQLite.
+Public Google Sheets cannot accept anonymous edits, so upload and cross-device synchronization use the guided, owner-deployed bridge:
+
+1. On the source device, give it a clear name such as **Office Desktop**, then open **Settings → Set up Google synchronization**.
+2. Follow the five in-app steps. Installor generates the private shared secret, shows the complete version-matched Apps Script, and copies it with one button.
+3. Paste and deploy the script from the target Sheet, paste its `/exec` URL back into Installor, then choose **Save and test connection**.
+4. Choose **Push entire local library**. This includes catalog and installation records added before synchronization was configured.
+5. On another device, install Installor, assign its own name such as **Research Laptop**, use the same guided script and deployment URL/secret, and choose **Sync with Sheet**.
+
+The receiving device gets the portable catalog and displays precise categories such as **Office Desktop** and **Research Laptop**. **Sync with Sheet** downloads newer remote records, uploads pending local changes and removals, and reports exactly what moved. It never scans, downloads, installs, uninstalls, or deletes files. The secret is stored through Windows Credential Manager, macOS Keychain, or Linux Secret Service—not in SQLite. See the [complete write-back guide](apps-script/README.md).
+
+### 7. Remove catalog records safely
+
+Select one or more catalog rows and choose **Remove selected**. This removes Installor catalog metadata and its linked installation records; it does not uninstall applications or delete installer files. When synchronization is configured, the removal is queued and propagated to other connected computers on the next sync.
 
 For field definitions, operational examples, troubleshooting, and safe-uninstall guidance, read the complete [User Guide](docs/USER_GUIDE.md).
 
@@ -158,7 +170,7 @@ Potential collaborations include empirical studies of installer provenance, secu
 If Installor supports academic work, cite the software using the repository's **Cite this repository** control or the metadata in [CITATION.cff](CITATION.cff):
 
 ```text
-Sudipta Kumar (2026). Installor (Version 0.1.1) [Computer software].
+Sudipta Kumar (2026). Installor (Version 0.2.0) [Computer software].
 https://github.com/the-sudipta/installor
 ```
 
