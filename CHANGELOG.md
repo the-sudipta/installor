@@ -26,7 +26,7 @@ All notable changes to Installor are documented here. The format follows [Keep a
 
 - Existing local records can now be queued and pushed after Google synchronization is configured, eliminating the v0.1 backfill gap.
 - Sync state now displays connection, pending-change, and last-success information instead of a generic completion toast.
-- Google Sheet setup and the PC-A → Sheet → PC-B workflow are documented directly inside Installor.
+- Google Sheet setup and the named-device → Sheet → named-device workflow are documented directly inside Installor.
 
 ### Fixed
 
